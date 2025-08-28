@@ -15,4 +15,7 @@ _(preferably 3.9)_.
 
 **1.** Navigate to the `src` directory.
 
-**2.** ```python main.py```.
+**2.** 
+```py 
+python main.py 
+```
