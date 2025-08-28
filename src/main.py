@@ -32,51 +32,66 @@ def __main__():
             away_team.add_matchup(home_team)
 
     # Print the schedule header
-    print("**********")
+    print("\n**********")
     print("SCHEDULE")
     print("**********\n")
+    print("------------------------------------------------------")
 
     # Go week by week
     for i in range(num_weeks):
-        # Make all teams available for the week
-        available_teams = teams[:]
+        week_valid = False
+
         # If the current week is not rivalry week
         if i + 1 != rivalry_week_num:
-            # Print the week number
-            print(f"WEEK {i + 1}")
-            for j in range(int(num_teams / 2)):
-                # Pick a random available team
-                random_away_team = random.choice(available_teams)
-                available_teams.remove(random_away_team)
 
-                # Keep trying to find a second random team out of the available teams that the first has not played
-                while True:
+            # Keep trying to find a valid week, where all matchups haven't been played yet
+            while not week_valid:
+                # Make all teams available for the week and reset the weekly matchups
+                available_teams = teams[:]
+                weekly_matchups = []
+                valid_matchups_found = 0
+
+                # Iterate the number of times for half the amount of total teams
+                for j in range(int(num_teams / 2)):
+                    # Pick two random available teams
+                    random_away_team = random.choice(available_teams)
+                    available_teams.remove(random_away_team)
                     random_home_team = random.choice(available_teams)
-                    # Once one is found create a matchup between the two
+
+                    # If the two teams have not played yet, create a matchup between the two
                     if not random_away_team.has_matchup(random_home_team):
                         available_teams.remove(random_home_team)
-                        random_away_team.add_matchup(random_home_team)
-                        random_home_team.add_matchup(random_away_team)
-                        # Print the matchup to the console
-                        print(f"Matchup {j + 1}: {random_away_team.get_name()} @ {random_home_team.get_name()}")
-                        break
-            print("------------------------------------------------------")
+                        weekly_matchups.append((random_away_team, random_home_team))
+                        valid_matchups_found += 1
+
+                # If the week is valid, add and print matchups for the week and go to next week
+                if valid_matchups_found == int(num_teams / 2):
+                    print(f"WEEK {i + 1}")
+                    for matchup_num, (away_team, home_team) in enumerate(weekly_matchups):
+                        away_team.add_matchup(home_team)
+                        home_team.add_matchup(away_team)
+                        print(f"Matchup {matchup_num + 1}: {away_team.get_name()} @ {home_team.get_name()}")
+                    print("------------------------------------------------------")
+                    week_valid = True
+
         # If the current week is rivalry week
         else:
+            # Make all teams available for the week
+            available_teams = teams[:]
             # Print the week number and that it is rivalry week
             print(f"WEEK {i + 1} (RIVALRY WEEK)")
             for j in range(int(num_teams / 2)):
                 # Pick a random available team
                 random_team = random.choice(available_teams)
                 # Get the random team's rivalry opponent
-                random_team_opponent = random_team.get_rivalry_matchup()
+                random_team_rival = random_team.get_rivalry_matchup()
                 available_teams.remove(random_team)
-                available_teams.remove(random_team_opponent)
+                available_teams.remove(random_team_rival)
                 # Check if the random team plays at home in the rivalry matchup, print accordingly
                 if random_team.is_rivalry_matchup_home():
-                    print(f"Matchup {j + 1}: {random_team_opponent.get_name()} @ {random_team.get_name()}")
+                    print(f"Matchup {j + 1}: {random_team_rival.get_name()} @ {random_team.get_name()}")
                 else:
-                    print(f"Matchup {j + 1}: {random_team.get_name()} @ {random_team_opponent.get_name()}")
+                    print(f"Matchup {j + 1}: {random_team.get_name()} @ {random_team_rival.get_name()}")
             print("------------------------------------------------------")
 
 if __name__ == "__main__":
