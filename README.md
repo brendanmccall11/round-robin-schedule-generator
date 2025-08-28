@@ -17,5 +17,5 @@ _(preferably 3.9)_.
 
 **2.** 
 ```py 
-python main.py 
+python3 main.py 
 ```
