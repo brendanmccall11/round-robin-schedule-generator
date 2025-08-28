@@ -2,63 +2,77 @@ import random
 from team.team import Team, get_team_by_name
 
 def __main__():
-    teams = []
-
+    # Initialize import variables & prompt user for desired number of teams, which week is rivalry week
     num_teams = int(input("Enter number of teams: "))
     rivalry_week_num = int(input("Enter number of week for rivalry week: "))
+    teams = []
     num_weeks = num_teams - 1
 
+    # Prompt user for names of all teams
     for i in range(num_teams):
         user_team = input(f"Enter team {i+1}: ")
+        # Create and add team
         new_team = Team(user_team)
         teams.append(new_team)
 
     for i in range(num_teams):
+        # Ask user if each team plays at home during rivalry week
         home_team = teams[i]
         user_answer = input(f"Will {home_team.get_name()} be a home team during rivalry week? (y/n): ")
 
+        # If a team plays at home, prompt the user for the name of the rival team
         if user_answer == "y":
             away_team_name = input(f"Enter rivalry matchup of {home_team.get_name()}: ")
             away_team = get_team_by_name(away_team_name, teams)
+            # Set all necessary variables for both teams
             home_team.set_rivalry_matchup(away_team)
             home_team.add_matchup(away_team)
             home_team.set_rivalry_matchup_home()
             away_team.set_rivalry_matchup(home_team)
             away_team.add_matchup(home_team)
 
+    # Print the schedule header
     print("**********")
     print("SCHEDULE")
     print("**********\n")
 
+    # Go week by week
     for i in range(num_weeks):
+        # Make all teams available for the week
+        available_teams = teams[:]
+        # If the current week is not rivalry week
         if i + 1 != rivalry_week_num:
-            available_teams = teams[:]
-
-            print(f"WEEK {i + 1}:")
+            # Print the week number
+            print(f"WEEK {i + 1}")
             for j in range(int(num_teams / 2)):
+                # Pick a random available team
                 random_away_team = random.choice(available_teams)
                 available_teams.remove(random_away_team)
 
+                # Keep trying to find a second random team out of the available teams that the first has not played
                 while True:
                     random_home_team = random.choice(available_teams)
-
+                    # Once one is found create a matchup between the two
                     if not random_away_team.has_matchup(random_home_team):
                         available_teams.remove(random_home_team)
                         random_away_team.add_matchup(random_home_team)
                         random_home_team.add_matchup(random_away_team)
+                        # Print the matchup to the console
                         print(f"Matchup {j + 1}: {random_away_team.get_name()} @ {random_home_team.get_name()}")
                         break
             print("------------------------------------------------------")
+        # If the current week is rivalry week
         else:
-            available_teams = teams[:]
-
-            print(f"WEEK {i + 1} (RIVALRY WEEK):")
+            # Print the week number and that it is rivalry week
+            print(f"WEEK {i + 1} (RIVALRY WEEK)")
             for j in range(int(num_teams / 2)):
+                # Pick a random available team
                 random_team = random.choice(available_teams)
+                # Get the random team's rivalry opponent
                 random_team_opponent = random_team.get_rivalry_matchup()
                 available_teams.remove(random_team)
                 available_teams.remove(random_team_opponent)
-
+                # Check if the random team plays at home in the rivalry matchup, print accordingly
                 if random_team.is_rivalry_matchup_home():
                     print(f"Matchup {j + 1}: {random_team_opponent.get_name()} @ {random_team.get_name()}")
                 else:
